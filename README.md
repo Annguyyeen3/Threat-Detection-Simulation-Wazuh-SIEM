@@ -60,8 +60,6 @@ This SOC lab is a practice environment and portfolio project. Wazuh SIEM collect
 Network: 10.0.0.0/24 (Internal Lab Network)
 ```
 
-![Lab Architecture](screenshots/img.png)
-
 ### VM specifications
 
 | VM            | OS               | IP       | RAM | CPU    | Role                          |
