@@ -1,82 +1,75 @@
-# SOC Lab – Threat Detection & Simulation with Wazuh SIEM
+# SOC lab: Threat detection and simulation with Wazuh SIEM
 
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
 ![SIEM](https://img.shields.io/badge/SIEM-Wazuh%204.7-blue)
 ![Framework](https://img.shields.io/badge/Framework-MITRE%20ATT%26CK-red)
 ![Platform](https://img.shields.io/badge/Platform-VMware%20%2F%20VirtualBox-lightgrey)
 
-> A hands-on Security Operations Center (SOC) lab environment built for threat detection, log analysis, and attack simulation using the MITRE ATT&CK framework.
+> A Security Operations Center (SOC) lab for practicing threat detection, log analysis, and attack simulation with MITRE ATT&CK.
 
----
+## Project overview
 
-## Project Overview
-
-This project builds a small-scale SOC environment designed for hands-on practice and personal portfolio demonstration. The system integrates **Wazuh SIEM** to collect and analyze logs from multiple endpoints, combined with **Atomic Red Team** to simulate real-world attack techniques mapped to the MITRE ATT&CK framework.
+This SOC lab is a practice environment and portfolio project. Wazuh SIEM collects and analyzes logs from the endpoints. Atomic Red Team runs attack simulations mapped to MITRE ATT&CK techniques.
 
 ### Objectives
 
 - Deploy and configure Wazuh SIEM (all-in-one deployment)
 - Collect logs from multiple sources: Windows Event Log, Sysmon, Linux Syslog/Auditd
 - Build custom decoders and detection rules mapped to MITRE ATT&CK techniques
-- Simulate real-world attack scenarios using Atomic Red Team across multiple tactics
-- Evaluate detection rate and visualize security events on Kibana dashboard
+- Run Atomic Red Team simulations across multiple MITRE ATT&CK tactics
+- Evaluate detection rate and visualize security events on dashboard
 
-### Technologies Used
+### Technologies used
 
 | Component           | Tool                       | Version |
 | ------------------- | -------------------------- | ------- |
 | SIEM                | Wazuh                      | 4.7.x   |
-| Indexer / Dashboard | Elastic Stack (Wazuh fork) | 4.7.x   |
+| Indexer / Dashboard | Wazuh                      | 4.7.x   |
 | Endpoint Monitoring | Sysmon                     | Latest  |
 | Attack Simulation   | Atomic Red Team            | Latest  |
 | Framework           | MITRE ATT&CK               | v14     |
 
----
-
-## Lab Architecture
+## Lab architecture
 
 ```
-                    ┌─────────────────────┐
-                    │   Kibana Dashboard  │
-                    │   SOC Analyst View  │
-                    └──────────┬──────────┘
-                               │ alerts
-                    ┌──────────▼──────────┐
-                    │    Wazuh Server     │
-                    │   Ubuntu Server     │
-                    │   IP: 10.0.0.6      │
-                    └───┬─────────────┬───┘
-               logs ◄───┘             └───► logs
-    ┌──────────────────┐           ┌──────────────────┐
-    │  Windows 10      │           │      Ubuntu      │
-    │  IP: 10.0.0.7    │           │  IP: 10.0.0.4    │
-    │  - Sysmon        │           │  - Wazuh Agent   │
-    │  - Wazuh Agent   │           │  - Auditd        │
-    │  - Atomic RT     │           │  - Atomic RT     │
-    └────────▲─────────┘           └────────▲─────────┘
-             │  attack (simulated)           │
-             └──────────────┬───────────────┘
-                   ┌────────┴────────┐
-                   │  Kali Linux     │
-                   │  IP: 10.0.0.x   │
-                   │  (Attacker)     │
-                   └─────────────────┘
+                                             ┌─────────────────────┐
+                                             │   Wazuh Dashboard   │
+                                             │   SOC Analyst View  │
+                                             └──────────┬──────────┘
+                                                        │ alerts
+                                             ┌──────────▼──────────┐
+                                             │    Wazuh Server     │
+                                             │       Ubuntu        │
+                                             │   IP: 10.0.0.6      │
+                                             └───┬─────────────┬───┘
+                                        logs ◄───┘             └───► logs
+                                ┌──────────────────┐           ┌──────────────────┐
+                                │    Windows 10    │           │      Ubuntu      │
+                                │  IP: 10.0.0.7    │           │  IP: 10.0.0.4    │
+                                │  - Sysmon        │           │  - Wazuh Agent   │
+                                │  - Wazuh Agent   │           │  - Auditd        │
+                                │  - Atomic RT     │           │  - Atomic RT     │
+                                └────────▲─────────┘           └────────▲─────────┘
+                                         │      attack (simulated)      │
+                                         └──────────────┬───────────────┘
+                                               ┌────────┴────────┐
+                                               │  Kali Linux     │
+                                               │  IP: 10.0.0.5   │
+                                               │  (Attacker)     │
+                                               └─────────────────┘
 
 Network: 10.0.0.0/24 (Internal Lab Network)
 ```
 
-![Lab Architecture](screenshots/image.png)
+![Lab Architecture](screenshots/img.png)
 
-### VM Specifications
+### VM specifications
 
 | VM            | OS               | IP       | RAM | CPU    | Role                          |
 | ------------- | ---------------- | -------- | --- | ------ | ----------------------------- |
 | Wazuh Server  | Ubuntu 22.04 LTS | 10.0.0.6 | 4GB | 2 core | SIEM, Indexer, Dashboard      |
 | Windows Agent | Windows 10       | 10.0.0.7 | 4GB | 2 core | Endpoint (Sysmon + Atomic RT) |
-| Linux Agent   | Ubuntu 20.04     | 10.0.0.4 | 2GB | 2 core | Endpoint (Auditd + Atomic RT) |
-| Kali Attacker | Kali Linux       | 10.0.0.x | 4GB | 2 core | Attack simulation             |
-
----
+| Linux Agent   | Ubuntu 24.04     | 10.0.0.4 | 2GB | 2 core | Endpoint (Auditd + Atomic RT) |
+| Kali Attacker | Kali Linux       | 10.0.0.5 | 4GB | 2 core | Attack simulation             |
 
 ## Documentation
 
@@ -88,9 +81,7 @@ Network: 10.0.0.0/24 (Internal Lab Network)
 | [Phase 4 – Detection Rules](docs/phase4-detection-rules.md)             | Write MITRE-mapped detection rules    | Completed |
 | [Phase 5 – Atomic Simulation](docs/phase5-atomic-simulation.md)         | Run Atomic Red Team tests             | Completed |
 
----
-
-## Repository Structure
+## Repository structure
 
 ```
 mini-soc-lab/
@@ -105,15 +96,11 @@ mini-soc-lab/
 │   ├── ossec.conf
 │   ├── custom_decoders.xml
 │   └── local_rules.xml
-├── screenshots/
-│   └── (per-phase screenshots)
-└── atomic-tests/
-    └── test-results.md
+└── screenshots/
+    └── (per-phase screenshots)
 ```
 
----
-
-## MITRE ATT&CK Coverage
+## MITRE ATT&CK coverage
 
 | Tactic            | Technique                        | Atomic Test | Detection Rule |
 | ----------------- | -------------------------------- | ----------- | -------------- |

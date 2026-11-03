@@ -1,14 +1,12 @@
-# Phase 4: Detection Rules & MITRE Mapping
+# Phase 4: Detection rules and MITRE mapping
 
 ## Overview
 
-This phase covers writing custom Wazuh detection rules, mapping them to MITRE ATT&CK techniques, and testing using `wazuh-logtest`.
+Write custom Wazuh detection rules and map them to MITRE ATT&CK techniques. Use `wazuh-logtest` to check the rules.
 
----
+## 4.1 Wazuh rule syntax
 
-## 4.1 Wazuh Rule Syntax
-
-Rules are defined in XML format. Custom rules go in `/var/ossec/etc/rules/local_rules.xml`.
+Define custom rules in XML in `/var/ossec/etc/rules/local_rules.xml`.
 
 ```xml
 <rule id="XXXXXX" level="X">
@@ -26,23 +24,21 @@ Rules are defined in XML format. Custom rules go in `/var/ossec/etc/rules/local_
 
 | Range           | Purpose                     |
 | --------------- | --------------------------- |
-| 1 – 99999       | Built-in Wazuh rules        |
-| 100000 – 109999 | Custom rules (user-defined) |
+| 1 - 99999       | Built-in Wazuh rules        |
+| 100000 - 109999 | Custom rules (user-defined) |
 
 ### Rule levels
 
 | Level   | Meaning                  |
 | ------- | ------------------------ |
-| 0 – 3   | Informational            |
-| 4 – 7   | Low severity             |
-| 8 – 11  | Medium severity          |
-| 12 – 15 | High severity / Critical |
+| 0 - 3   | Informational            |
+| 4 - 7   | Low severity             |
+| 8 - 11  | Medium severity          |
+| 12 - 15 | High severity / Critical |
 
----
+## 4.2 Rule: SSH brute force detection
 
-## 4.2 Rule: SSH Brute Force Detection
-
-Trigger when the same source IP fails SSH login 5+ times in 60 seconds.
+This rule triggers after 5 or more failed SSH logins from the same source IP within 60 seconds.
 
 ```xml
 <rule id="100001" level="10" frequency="5" timeframe="60">
@@ -56,16 +52,14 @@ Trigger when the same source IP fails SSH login 5+ times in 60 seconds.
 </rule>
 ```
 
-> `if_matched_sid: 5710` — built-in rule for SSH failed login (from Phase 3)
-> `frequency: 5` — triggers after 5 matches
-> `timeframe: 60` — within 60 seconds
-> `same_source_ip` — must be from same IP
+> `if_matched_sid: 5710`: the built-in SSH failed-login rule from Phase 3.
+> `frequency: 5`: trigger after 5 matches.
+> `timeframe: 60`: count matches within 60 seconds.
+> `same_source_ip`: require the same source IP.
 
----
+## 4.3 Rule: PowerShell encoded command
 
-## 4.3 Rule: PowerShell Encoded Command
-
-Trigger when PowerShell is executed with an encoded command (evasion technique).
+Detect PowerShell execution with an encoded command, an evasion technique.
 
 ```xml
 <rule id="100002" level="12">
@@ -80,11 +74,9 @@ Trigger when PowerShell is executed with an encoded command (evasion technique).
 </rule>
 ```
 
----
+## 4.4 Rule: Mimikatz / credential dumping
 
-## 4.4 Rule: Mimikatz / Credential Dumping
-
-Trigger when known credential dumping tools are detected via Sysmon.
+Use Sysmon events to detect known credential dumping tools.
 
 ```xml
 <rule id="100003" level="15">
@@ -98,11 +90,9 @@ Trigger when known credential dumping tools are detected via Sysmon.
 </rule>
 ```
 
----
+## 4.5 Rule: Suspicious scheduled task creation
 
-## 4.5 Rule: Suspicious Scheduled Task Creation
-
-Trigger when a new scheduled task is created (common persistence technique).
+Detect new scheduled tasks, which are commonly used for persistence.
 
 ```xml
 <rule id="100004" level="10">
@@ -117,11 +107,9 @@ Trigger when a new scheduled task is created (common persistence technique).
 </rule>
 ```
 
----
+## 4.6 Rule: Linux privilege escalation via sudo
 
-## 4.6 Rule: Linux Privilege Escalation via Sudo
-
-Trigger when a non-standard user runs sudo commands repeatedly.
+Detect repeated sudo commands from a non-standard user.
 
 ```xml
 <rule id="100005" level="8" frequency="3" timeframe="60">
@@ -135,11 +123,9 @@ Trigger when a non-standard user runs sudo commands repeatedly.
 </rule>
 ```
 
----
+## 4.7 Apply rules
 
-## 4.7 Apply Rules
-
-### Step 1 – Edit local_rules.xml
+### Step 1 - Edit local_rules.xml
 
 ```bash
 sudo nano /var/ossec/etc/rules/local_rules.xml
@@ -210,20 +196,18 @@ Add all rules inside the `<group name="local,">` tag:
 </group>
 ```
 
-![Services Status](../screenshots/phase4/image2.png)
-![Services Status](../screenshots/phase4/image1.png)
+![Services Status](../screenshots/phase4/img1.png)
+![Services Status](../screenshots/phase4/img2.png)
 
-### Step 2 – Reload rules
+### Step 2 - Reload rules
 
 ```bash
 sudo systemctl restart wazuh-manager
 ```
 
----
+## 4.8 Test rules with wazuh-logtest
 
-## 4.8 Test Rules with wazuh-logtest
-
-### Test Rule 100001 – SSH Brute Force
+### Test rule 100001: SSH brute force
 
 ```bash
 sudo /var/ossec/bin/wazuh-logtest
@@ -236,11 +220,10 @@ May  5 11:14:04 db-server sshd[110364]: Failed password for invalid user wrongus
 ```
 
 Expected: Rule `100001` fires after 5th attempt.
-![Services Status](../screenshots/phase4/image3.png)
 
----
+![Services Status](../screenshots/phase4/img3.png)
 
-## 4.9 MITRE ATT&CK Coverage Summary
+## 4.9 MITRE ATT&CK coverage Summary
 
 | Rule ID | Description                   | MITRE Technique  | Tactic                     |
 | ------- | ----------------------------- | ---------------- | -------------------------- |
@@ -250,4 +233,4 @@ Expected: Rule `100001` fires after 5th attempt.
 | 100004  | Scheduled Task Persistence    | T1053.005        | Persistence                |
 | 100005  | Linux Sudo Escalation         | T1548.003        | Privilege Escalation       |
 
-> **Note:** During simulation (Phase 5), some detections were triggered by built-in Wazuh rules (5763, 92026, 92031, 5402) instead of custom rules, as built-in rules matched the attack patterns first.
+> In Phase 5, built-in rules (5763, 92026, 92031, 5402) matched some attack patterns before the custom rules and generated the alerts.

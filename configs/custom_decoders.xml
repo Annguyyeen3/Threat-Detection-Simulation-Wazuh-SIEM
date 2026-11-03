@@ -21,9 +21,6 @@
   - extra_data - Any extra data
 -->
 
-<decoder name="local_decoder_example">
-    <program_name>local_decoder_example</program_name>
-</decoder>
 <!-- Custom decoder: PowerShell Encoded Command -->
 <decoder name="custom-powershell-encoded">
   <program_name>Microsoft-Windows-Sysmon</program_name>

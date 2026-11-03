@@ -1,42 +1,40 @@
-# Phase 1: Infrastructure Setup
+# Phase 1: Infrastructure setup
 
 ## Overview
 
-This phase covers deploying the Wazuh Server (all-in-one) and preparing all virtual machines in the lab environment.
+Deploy the Wazuh server in an all-in-one configuration, then prepare the lab virtual machines.
 
----
-
-## 1.1 VM Specifications
+## 1.1 VM specifications
 
 | VM            | OS               | IP       | RAM | CPU    | Disk |
 | ------------- | ---------------- | -------- | --- | ------ | ---- |
 | Wazuh Server  | Ubuntu 22.04 LTS | 10.0.0.6 | 4GB | 2 core | 50GB |
 | Windows Agent | Windows 10       | 10.0.0.7 | 4GB | 2 core | 50GB |
 | Linux Agent   | Ubuntu 20.04     | 10.0.0.4 | 2GB | 2 core | 30GB |
-| Kali Attacker | Kali Linux       | 10.0.0.x | 4GB | 2 core | 40GB |
+| Kali Attacker | Kali Linux       | 10.0.0.5 | 4GB | 2 core | 40GB |
 
-**Network:** Create a single NAT Network `10.10.0.0/24` and attach all VMs to it. Verify connectivity:
+Network: Create a single NAT Network `10.0.0.0/24` and attach all VMs to it. Verify connectivity:
 
-## 1.2 Install Wazuh Server (All-in-One)
+## 1.2 Install Wazuh server (all-in-one)
 
-> Performed on: **Ubuntu 22.04 – 10.0.0.6**
+> Run on: Ubuntu 22.04 - 10.0.0.6
 
-### Step 1 – System update
+### Step 1 - System update
 
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
 
-![Services Status](../screenshots/phase1/image.png)
+![Services Status](../screenshots/phase1/img1.png)
 
-### Step 2 – Download installation files
+### Step 2 - Download installation files
 
 ```bash
 curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh
 curl -sO https://packages.wazuh.com/4.7/config.yml
 ```
 
-### Step 3 – Edit config.yml
+### Step 3 - Edit config.yml
 
 ```yaml
 nodes:
@@ -51,9 +49,9 @@ nodes:
       ip: "10.0.0.6"
 ```
 
-![Services Status](../screenshots/phase1/image1.png)
+![Services Status](../screenshots/phase1/img2.png)
 
-### Step 4 – Run installation
+### Step 4 - Run installation
 
 ```bash
 # Generate certificates
@@ -69,20 +67,18 @@ sudo bash wazuh-install.sh --wazuh-server wazuh-1
 sudo bash wazuh-install.sh --wazuh-dashboard dashboard
 ```
 
-![Services Status](../screenshots/phase1/image2.png)
-![Services Status](../screenshots/phase1/image3.png)
+![Services Status](../screenshots/phase1/img3.png)
+![Services Status](../screenshots/phase1/img4.png)
 
-### Step 5 – Retrieve admin password
+### Step 5 - Retrieve admin password
 
 ```bash
-sudo tar -O -xvf wazuh-passwords.tar | grep -P "\'admin\'" -A 1
+sudo tar -O -xvf wazuh-install-files.tar | grep -P "\'admin\'" -A 1
 ```
 
-> ⚠️ Save this password — required to log in to the dashboard.
+> Save this password. You will need it to log in to the dashboard.
 
----
-
-## 1.3 Verify Installation
+## 1.3 Verify installation
 
 ```bash
 # Check all services are running
@@ -91,10 +87,8 @@ sudo systemctl status wazuh-indexer
 sudo systemctl status wazuh-dashboard
 ```
 
-![Services Status](../screenshots/phase1/image5.png)
-![Services Status](../screenshots/phase1/image6.png)
-
----
+![Services Status](../screenshots/phase1/img5.png)
+![Services Status](../screenshots/phase1/img6.png)
 
 ## 1.4 Access Dashboard
 
@@ -103,11 +97,9 @@ Open a browser and navigate to:
 ```
 https://10.0.0.6
 Username: admin
-Password: OwSVJ+lplT*1hYwjbJurlmGogBxHuz1h
+Password: <your-admin-password>
 ```
 
-![Services Status](../screenshots/phase1/image4.png)
+![Services Status](../screenshots/phase1/img7.png)
 
-> Accept the SSL warning (self-signed certificate).
-
----
+> Accept the SSL warning for the self-signed certificate.

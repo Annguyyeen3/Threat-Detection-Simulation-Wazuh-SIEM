@@ -1,37 +1,35 @@
-# Phase 2: Agent Installation & Log Collection
+# Phase 2: Agent installation and log collection
 
 ## Overview
 
-This phase covers installing Wazuh agents on Windows and Linux endpoints, configuring log sources, and verifying data flow to the Wazuh SIEM.
-
----
+Install Wazuh agents on the Windows and Linux endpoints and configure their log sources. Then check that both agents send data to Wazuh.
 
 ## 2.1 Install Sysmon on Windows Agent
 
-> Performed on: **Windows 10 – 10.0.0.7**
+> Run on: Windows 10 - 10.0.0.7
 
-Sysmon must be installed **before** the Wazuh agent to ensure complete event logging from the start.
+Sysmon must be installed before the Wazuh agent to ensure complete event logging from the start.
 
-### Step 1 – Download Sysmon
+### Step 1 - Download Sysmon
 
 ```powershell
 Invoke-WebRequest -Uri "https://download.sysinternals.com/files/Sysmon.zip" -OutFile "Sysmon.zip"
 Expand-Archive Sysmon.zip -DestinationPath Sysmon
 ```
 
-### Step 2 – Download SwiftOnSecurity config
+### Step 2 - Download SwiftOnSecurity config
 
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml" -OutFile "sysmonconfig.xml"
 ```
 
-### Step 3 – Install Sysmon
+### Step 3 - Install Sysmon
 
 ```powershell
 .\Sysmon\Sysmon64.exe -accepteula -i sysmonconfig.xml
 ```
 
-### Step 4 – Verify
+### Step 4 - Verify
 
 ```powershell
 Get-Service Sysmon64
@@ -45,31 +43,31 @@ Status   Name               DisplayName
 Running  Sysmon64           System Monitor
 ```
 
-## ![Services Status](../screenshots/phase2/image.png)
+![Services Status](../screenshots/phase2/img1.png)
 
-## 2.2 Install Wazuh Agent on Windows
+## 2.2 Install Wazuh agent on Windows
 
-> Performed on: **Windows 10 – 10.0.0.7**
+> Run on: Windows 10 - 10.0.0.7
 
-### Step 1 – Download agent installer
+### Step 1 - Download agent installer
 
 ```powershell
 Invoke-WebRequest -Uri "https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.5-1.msi" -OutFile "wazuh-agent.msi"
 ```
 
-### Step 2 – Install agent
+### Step 2 - Install agent
 
 ```powershell
 .\wazuh-agent.msi /q WAZUH_MANAGER="10.0.0.6" WAZUH_AGENT_NAME="windows-agent"
 ```
 
-### Step 3 – Start agent service
+### Step 3 - Start agent service
 
 ```powershell
-net start WazuhSvc
+Start-Service WazuhSvc
 ```
 
-### Step 4 – Verify
+### Step 4 - Verify
 
 ```powershell
 Get-Service WazuhSvc
@@ -83,13 +81,13 @@ Status   Name               DisplayName
 Running  WazuhSvc           Wazuh
 ```
 
-## ![Services Status](../screenshots/phase2/image1.png)
+![Services Status](../screenshots/phase2/img2.png)
 
-## 2.3 Install Wazuh Agent on Linux
+## 2.3 Install Wazuh agent on Linux
 
-> Performed on: **Ubuntu 20.04 – 10.0.0.4**
+> Run on: Ubuntu 24.04 - 10.0.0.4
 
-### Step 1 – Add Wazuh repository
+### Step 1 - Add Wazuh repository
 
 ```bash
 curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | sudo gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import
@@ -100,17 +98,17 @@ echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4
 sudo apt update
 ```
 
-![Services Status](../screenshots/phase2/image2.png)
+![Services Status](../screenshots/phase2/img3.png)
 
-### Step 2 – Install agent
+### Step 2 - Install agent
 
 ```bash
 sudo WAZUH_MANAGER="10.0.0.6" WAZUH_AGENT_NAME="linux-agent" apt install wazuh-agent -y
 ```
 
-![Services Status](../screenshots/phase2/image3.png)
+![Services Status](../screenshots/phase2/img4.png)
 
-### Step 3 – Start agent service
+### Step 3 - Start agent service
 
 ```bash
 sudo systemctl daemon-reload
@@ -118,17 +116,17 @@ sudo systemctl enable wazuh-agent
 sudo systemctl start wazuh-agent
 ```
 
-### Step 4 – Verify
+### Step 4 - Verify
 
 ```bash
 sudo systemctl status wazuh-agent
 ```
 
-## ![Services Status](../screenshots/phase2/image4.png)
+![Services Status](../screenshots/phase2/img5.png)
 
-## 2.4 Configure Log Sources
+## 2.4 Configure log sources
 
-### Windows – ossec.conf
+### Windows - ossec.conf
 
 Edit `C:\Program Files (x86)\ossec-agent\ossec.conf`, add the following inside `<ossec_config>`:
 
@@ -158,15 +156,16 @@ Edit `C:\Program Files (x86)\ossec-agent\ossec.conf`, add the following inside `
 </localfile>
 ```
 
-![Services Status](../screenshots/phase2/image5.png)
+![Services Status](../screenshots/phase2/img6.png)
+
 Restart agent after editing:
 
-```bash
-net stop WazuhSvc
-net start WazuhSvc
+```powershell
+Stop-Service WazuhSvc
+Start-Service WazuhSvc
 ```
 
-### Linux – ossec.conf
+### Linux - ossec.conf
 
 Edit `/var/ossec/etc/ossec.conf`, add inside `<ossec_config>`:
 
@@ -190,7 +189,7 @@ Edit `/var/ossec/etc/ossec.conf`, add inside `<ossec_config>`:
 </localfile>
 ```
 
-![Services Status](../screenshots/phase2/image6.png)
+![Services Status](../screenshots/phase2/img7.png)
 Enable and start Auditd:
 
 ```bash
@@ -205,9 +204,7 @@ Restart agent:
 sudo systemctl restart wazuh-agent
 ```
 
----
-
-## 2.5 Verify Agents on Dashboard
+## 2.5 Verify agents on Dashboard
 
 1. Open browser → `https://10.0.0.6`
 2. Navigate to **Agents** section
@@ -216,13 +213,14 @@ sudo systemctl restart wazuh-agent
 | Agent Name    | IP       | OS           | Status |
 | ------------- | -------- | ------------ | ------ |
 | windows-agent | 10.0.0.7 | Windows 10   | Active |
-| linux-agent   | 10.0.0.4 | Ubuntu 20.04 | Active |
+| linux-agent   | 10.0.0.4 | Ubuntu 24.04 | Active |
+
+  ![Services Status](../screenshots/phase2/img8.png)
 
 Verify logs are flowing:
 
 - Go to **Security Events** → filter by agent
-- Confirm events are being received from both endpoints
-  ![Services Status](../screenshots/phase2/image7.png)
-  ![Services Status](../screenshots/phase2/image8.png)
+- Check for events from both endpoints
 
----
+  ![Services Status](../screenshots/phase2/img9.png)
+  ![Services Status](../screenshots/phase2/img10.png)
